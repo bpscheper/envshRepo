@@ -7,14 +7,30 @@
 
 int main() {
 
-	char command[MAXLINE];
-
 	while(1) {
 		printf("envsh> ");
-		fgets(command, MAXLINE, stdin);
-		if (feof(stdin)) 
-			exit(0);
-
+		parser();
 	}
 	return 0;
+}
+
+void scanner(char* command, char* token, char* type) {
+
+
+
+}
+
+void parser() {
+
+	char command[MAXLINE];
+	char token[];
+	char type[];
+
+	fgets(command, MAXLINE, stdin);
+	if (feof(stdin))
+		exit(0);
+	scanner(command, token, type);
+	while() {
+
+	}
 }
