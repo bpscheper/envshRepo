@@ -5,6 +5,9 @@
 
 # define MAXLINE 256
 
+int scanner(char* command, char* token, char* type, int pos);
+void parser();
+
 int main() {
 
 	while(1) {
@@ -14,23 +17,29 @@ int main() {
 	return 0;
 }
 
-void scanner(char* command, char* token, char* type) {
+int scanner(char* command, char* token, char* type, int pos) {
 
+	for (; command[pos] != ' '; pos++) {
+		char character = command[pos];
+		if ((character == '%') || (character == '>') || (character == '<')) {
+			type = "metachar";
+		}
+	}
 
-
+	return pos;
 }
 
 void parser() {
 
 	char command[MAXLINE];
-	char token[];
-	char type[];
+	char token[MAXLINE];
+	char type[MAXLINE];
 
 	fgets(command, MAXLINE, stdin);
 	if (feof(stdin))
 		exit(0);
-	scanner(command, token, type);
-	while() {
-
+	int position = scanner(command, token, type, 0);
+	while(token != '\0') {
+		position = scanner(command, token, type, position);
 	}
 }
