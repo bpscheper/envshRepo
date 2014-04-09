@@ -98,6 +98,22 @@ void parser() {
 			if(each_element[i].token == "prompt"){
 				strcpy(prompt, each_element[i+1].token);
 			}
+			//Set the environment variable
+			else if(each_element[i].token == "setenv"){
+			}
+			//Unset the environment variable
+			else if(each_element[i].token == "unsetenv"){
+			}
+			//Print the current environment variables and values
+			else if(each_element[i].token == "listenv"){
+			}
+			//Set current directory
+			else if(each_element[i].token == "setdir"){
+			}
+			//Exit
+			if(each_element[i].token == "bye"){
+				exit(0);
+			}
 		}
 	}
 }
