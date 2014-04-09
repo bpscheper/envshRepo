@@ -2,6 +2,7 @@
 
 #include <stdio.h> 
 #include <stdlib.h>
+#include <string.h>
 
 # define MAXLINE 256
 
@@ -11,13 +12,12 @@ typedef struct {
 } Element;
 
 int changed_prompt = 0;
-char prompt[MAXLINE];
+char* prompt = "envsh > ";
 
 void scanner(char* command, Element* each_element);
 void parser();
 
 int main(int argc, char *argv[]) {
-
 //quiet mode is not working at the moment. I can't get it to work
 	int quiet = 0;
 	if (argv[1] == "quiet") {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 	while(1) {
 		if (quiet == 0) {
 			if (changed_prompt == 0) {
-				printf("envsh> ");
+				printf("%s", prompt);
 			} else {
 			}
 		}
@@ -92,6 +92,12 @@ void parser() {
 	//Parse each of the elements
 	int i = 0;
 	for(i=0; i < sizeof(each_element)/sizeof(each_element[0]); i++){
-
+		//Built-In Commands
+		if ((i==0) && (each_element[i].type == "string")){
+			//Set the shell prompt to next token
+			if(each_element[i].token == "prompt"){
+				strcpy(prompt, each_element[i+1].token);
+			}
+		}
 	}
 }
