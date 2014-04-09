@@ -11,24 +11,22 @@ typedef struct {
 	char* type;
 } Element;
 
-int changed_prompt = 0;
+//Globals
 char* prompt = "envsh > ";
 
+//Prototypes
 void scanner(char* command, Element* each_element);
 void parser();
 
 int main(int argc, char *argv[]) {
-//quiet mode is not working at the moment. I can't get it to work
+	//quiet mode is not working at the moment. I can't get it to work
 	int quiet = 0;
 	if (argv[1] == "quiet") {
 		quiet = 1;
 	}
 	while(1) {
 		if (quiet == 0) {
-			if (changed_prompt == 0) {
-				printf("%s", prompt);
-			} else {
-			}
+			printf("%s", prompt);
 		}
 		parser();
 	}
@@ -40,16 +38,30 @@ void scanner(char* command, Element* each_element) {
 	int current = 0; // current place in element array 
 	int i; // index used for command line 
 	for (i = 0; i < MAXLINE; ++i) {
-		if ((command[i] == '%') && (i == 0)) {
-			int index = 0;
-			char comment[MAXLINE];
-			while (command[i] != '\n') {
-				comment[index] = command[i];
-				++i;
-				++index;
+		//First line is a special case, check for built-in commands
+		if (i ==0){
+			//Check for a comment
+			if ((command[i] == '%')) {
+				int index = 0;
+				char comment[MAXLINE];
+				while (command[i] != '\n') {
+					comment[index] = command[i];
+					++i;
+					++index;
+				}
+				each_element[current].type = "metachar";
+				each_element[current].token = comment;
 			}
-			each_element[current].type = "metachar";
-			each_element[current].token = comment;
+			else{
+				//Check for built in commands
+				char firstcmd[6];
+				strncpy(firstcmd, command, 6);
+				if (strcmp(firstcmd, "prompt") == 0){
+					printf("scan prompt.");
+					each_element[current].type = "prompt";
+				}
+			}
+
 		} else if (command[i] == '<') {
 			++current;
             each_element[current].type = "metachar";
@@ -62,7 +74,7 @@ void scanner(char* command, Element* each_element) {
 
 		} else if (command[i] == '"') { 
 			while (command[i] != '"') {
-				
+				each_element[current].token += command[i];				
 				++i;
 			}
 			each_element[current].type = "string";
@@ -93,27 +105,26 @@ void parser() {
 	int i = 0;
 	for(i=0; i < sizeof(each_element)/sizeof(each_element[0]); i++){
 		//Built-In Commands
-		if ((i==0) && (each_element[i].type == "string")){
-			//Set the shell prompt to next token
-			if(each_element[i].token == "prompt"){
-				strcpy(prompt, each_element[i+1].token);
-			}
-			//Set the environment variable
-			else if(each_element[i].token == "setenv"){
-			}
-			//Unset the environment variable
-			else if(each_element[i].token == "unsetenv"){
-			}
-			//Print the current environment variables and values
-			else if(each_element[i].token == "listenv"){
-			}
-			//Set current directory
-			else if(each_element[i].token == "setdir"){
-			}
-			//Exit
-			if(each_element[i].token == "bye"){
-				exit(0);
-			}
+		//Set the shell prompt to next token
+		if(each_element[i].type == "prompt"){
+			printf("parse prompt");
+			strcpy(prompt, each_element[i+1].token);
+		}
+		//Set the environment variable
+		else if(each_element[i].type == "setenv"){
+		}
+		//Unset the environment variable
+		else if(each_element[i].type == "unsetenv"){
+		}
+		//Print the current environment variables and values
+		else if(each_element[i].type == "listenv"){
+		}
+		//Set current directory
+		else if(each_element[i].type == "setdir"){
+		}
+		//Exit
+		if(each_element[i].type == "bye"){
+			exit(0);
 		}
 	}
 }
