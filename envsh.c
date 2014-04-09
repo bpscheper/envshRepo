@@ -51,12 +51,10 @@ void scanner(char* command, Element* each_element) {
 			each_element[current].type = "metachar";
 			each_element[current].token = comment;
 		} else if (command[i] == '<') {
-
-                        ++current;
-                        each_element[current].type = "metachar";
-                        each_element[current].token = "<";
+			++current;
+            each_element[current].type = "metachar";
+            each_element[current].token = "<";
 		} else if (command[i] == '>') {
-
 			++current;
 			each_element[current].type = "metachar";
 			each_element[current].token = ">";
@@ -78,14 +76,22 @@ void parser() {
 
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
-		// command line input
+	
 	int cur_element = 0; // current index of token from command line
 
 	fgets(command, MAXLINE, stdin);
 	if (feof(stdin))
 		exit(0);
+
+	//Scan all of the elements
 	scanner(command, each_element);
 	while(each_element[cur_element].token != '\0') {
 		scanner(command, each_element);
+	}
+
+	//Parse each of the elements
+	int i = 0;
+	for(i=0; i < sizeof(each_element)/sizeof(each_element[0]); i++){
+
 	}
 }
