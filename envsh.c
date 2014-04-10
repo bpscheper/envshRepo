@@ -46,11 +46,13 @@ void scanner(char command[], Element* each_element) {
 	int current = 0; // current place in element array 
 	int i; // index used for command line 
 	int end_word = 0;
+	int mid_word = 0;
 	char word[MAXLINE];
 	int index_word = 0;
 	for (i = 0; i < MAXLINE; ++i) {
 		
 		if (end_word == 1) {
+			mid_word = 0;
 			index_word = 0;
 			end_word = 0;
 			memset(word, 0, MAXLINE);
@@ -69,15 +71,23 @@ void scanner(char command[], Element* each_element) {
 			strncpy(each_element[current].token, comment, sizeof(comment)/sizeof(*comment));
 			return;
 		} else if (command[i] == '<') {
-			++current;
+			if ((current > 0) || (mid_word == 1)) {
+				each_element[current].type = "word";
+				strcpy(each_element[current].token, word);
+				++current;
+			}
            		each_element[current].type = "metachar";
 			strcpy(each_element[current].token, "<");
-			continue;
-		} else if (command[i] == '>') {
 			++current;
+		} else if (command[i] == '>') {
+			if ((current > 0) || (mid_word == 1)) {
+				each_element[current].type = "word";
+				strcpy(each_element[current].token, word);
+				++current;
+			}
 			each_element[current].type = "metachar";
-			strcpy(each_element[current].token, ">");	
-			continue;
+			strcpy(each_element[current].token, ">");
+			++current;
 		} else if (command[i] == ' ') {
 			if (strcmp(each_element[current-1].type, "setenv") == 0){
 				++i;
@@ -120,6 +130,7 @@ void scanner(char command[], Element* each_element) {
 			strcpy(each_element[current].token, "EOL");
 			++current;
 		} else {
+			mid_word = 1;
 			word[index_word] = command[i];
 			word[index_word+1] = '\0';
 			++index_word;
@@ -201,14 +212,31 @@ void parser() {
 	else if(each_element[0].type == "bye"){
 		exit(0);
 	}
-		//Non built in function, fork here
+	else if (command[0] == '%') {
+		return;
+	}
+	//Non built in function, fork here
 	else{
+		if (each_element[0].type != "word") {
+			printf("invalid command. %s not a valid command\n", each_element[0].type);
+			return;
+		} else {
+			int i;
+			for (i = 0; i < MAXLINE; ++i) {
+				if (strcmp(each_element[i].token, ">") == 0) {
+					if (strcmp(each_element[i+1].token, "EOL" != 0)) {
+						FILE *fd = open(each_element[i+1].token, 'w');
+						dup2(fd, 1);
+						close(fd);
+					}
+				}
+			}
 			int pid = fork();
 			if (pid == 0){ //Child
-				//execl("/bin/date","",NULL);
+				execl(each_element[0].token,"",NULL);
 			}
 			wait(pid);
-			break;
 		}
 	}
+	
 }
