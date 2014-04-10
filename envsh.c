@@ -54,6 +54,7 @@ void scanner(char* command, Element* each_element) {
 				return;
 			}
 			else {
+				// printf("checking for build ins\n");
 				//Check for built in commands
 				char firstcmd[6];
 				strncpy(firstcmd, command, 6);
@@ -62,7 +63,6 @@ void scanner(char* command, Element* each_element) {
 					each_element[current].type = "prompt";
 					each_element[current].token = "prompt";
 					++current;
-					continue;
 				} else if (strcmp(firstcmd, "setdir") == 0) {
 					each_element[current].type = "setdir";
 					each_element[current].token = "setdir";
@@ -93,9 +93,9 @@ void scanner(char* command, Element* each_element) {
 					continue;
 				}
 
-				char bye[7];
+				char bye[3];
                                 strncpy(bye, command, 3);
-                                if (strcmp(list_env, "bye") == 0) {
+                                if (strcmp(bye, "bye") == 0) {
                                         each_element[current].type = "bye";
                                         each_element[current].token = "bye";
                                         ++current;
@@ -137,9 +137,6 @@ void parser() {
 
 	//Scan all of the elements
 	scanner(command, each_element);
-	while(each_element[cur_element].token != '\0') {
-		scanner(command, each_element);
-	}
 
 	//Parse each of the elements
 	int i = 0;
