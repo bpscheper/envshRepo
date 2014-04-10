@@ -51,21 +51,61 @@ void scanner(char* command, Element* each_element) {
 				}
 				each_element[current].type = "metachar";
 				each_element[current].token = comment;
+				return;
 			}
-			else{
+			else {
 				//Check for built in commands
 				char firstcmd[6];
 				strncpy(firstcmd, command, 6);
 				if (strcmp(firstcmd, "prompt") == 0){
 					printf("scan prompt.");
 					each_element[current].type = "prompt";
+					each_element[current].token = "prompt";
+					++current;
+					continue;
+				} else if (strcmp(firstcmd, "setdir") == 0) {
+					each_element[current].type = "setdir";
+					each_element[current].token = "setdir";
+					++current;
+					continue;
+				} else if (strcmp(firstcmd, "setenv") == 0) {
+					each_element[current].type = "setenv";
+					each_element[current].token = "setenv";
+					++current;
+					continue;
 				}
-			}
 
+				char check_unset[8];
+				strncpy(check_unset, command, 8);
+				if (strcmp(check_unset, "unsetenv") == 0) {
+					each_element[current].type = "unsetenv";
+					each_element[current].token = "unsetenv";
+					++current;
+					continue;
+				}
+
+				char list_env[7];
+				strncpy(list_env, command, 7);
+				if (strcmp(list_env, "listenv") == 0) {
+                                        each_element[current].type = "listenv";
+                                        each_element[current].token = "listenv";
+                                        ++current;
+					continue;
+				}
+
+				char bye[7];
+                                strncpy(bye, command, 3);
+                                if (strcmp(list_env, "bye") == 0) {
+                                        each_element[current].type = "bye";
+                                        each_element[current].token = "bye";
+                                        ++current;
+                                        continue;
+                                }
+			}
 		} else if (command[i] == '<') {
 			++current;
-            each_element[current].type = "metachar";
-            each_element[current].token = "<";
+           		each_element[current].type = "metachar";
+           		each_element[current].token = "<";
 		} else if (command[i] == '>') {
 			++current;
 			each_element[current].type = "metachar";
