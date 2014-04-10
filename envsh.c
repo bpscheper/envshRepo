@@ -26,9 +26,10 @@ void scanner(char* command, Element* each_element);
 void parser();
 
 int main(int argc, char *argv[]) {
-	//quiet mode is not working at the moment. I can't get it to work
+	
+	//Set up quiet mode
 	int quiet = 0;
-	if (argv[1] == "quiet") {
+	if (argc >= 2 && strcmp(argv[1],"quiet") == 0){
 		quiet = 1;
 	}
 	while(1) {
