@@ -11,8 +11,15 @@ typedef struct {
 	char* type;
 } Element;
 
+typedef struct{
+	char name[MAXLINE];
+	char value[MAXLINE];
+	int active;
+} Variable;
+
 //Globals
 char prompt[MAXLINE] = "envsh > ";
+Variable envVars[MAXLINE];
 
 //Prototypes
 void scanner(char* command, Element* each_element);
@@ -111,7 +118,22 @@ void scanner(char command[], Element* each_element) {
 			strcpy(each_element[current].token, ">");	
 			continue;
 		} else if (command[i] == ' ') {
+			if (strcmp(each_element[current-1].type, "setenv") == 0){
+				++i;
+				char str[MAXLINE];
+				int len = 0;
+				while(command[i] != ' '){
+					str[len] = command[i];
+					str[len + 1] = '\0';
+	                ++len;
+	                ++i;
+				}
 
+				each_element[current].type = "stringliteral";
+	            strcpy(each_element[current].token, str);
+
+    	        ++current;
+			}
 		} else if (command[i] == '"') { 
 			++i;
 			char str[MAXLINE];
@@ -137,6 +159,9 @@ void parser() {
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
 	
+	//Clear our array
+	memset(&each_element[0], 0, sizeof(each_element));
+
 	//int cur_element = 0; // current index of token from command line
 
 	fgets(command, MAXLINE, stdin);
@@ -156,12 +181,29 @@ void parser() {
 		}
 		//Set the environment variable
 		else if(each_element[i].type == "setenv"){
+			int i =0;
+			while (i < MAXLINE){
+				if (envVars[i].active != 1){
+					strcpy(envVars[i].name, each_element[i+1].token);
+					strcpy(envVars[i].value, each_element[i+2].token);
+					envVars[i].active = 1;
+					break;
+				}
+				i++;
+			}
 		}
 		//Unset the environment variable
 		else if(each_element[i].type == "unsetenv"){
 		}
 		//Print the current environment variables and values
 		else if(each_element[i].type == "listenv"){
+			int i = 0;
+			while(i < MAXLINE){
+				if (envVars[i].active == 1){
+					printf("%s=\"%s\"\n", envVars[i].name, envVars[i].value);
+				}
+				++i;
+			}
 		}
 		//Set current directory
 		else if(each_element[i].type == "setdir"){
