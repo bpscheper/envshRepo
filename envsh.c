@@ -44,7 +44,16 @@ void scanner(char command[], Element* each_element) {
 
 	int current = 0; // current place in element array 
 	int i; // index used for command line 
+	int end_word = 0;
+	char word[MAXLINE];
+	int index_word = 0;
 	for (i = 0; i < MAXLINE; ++i) {
+		
+		if (end_word == 1) {
+			index_word = 0;
+			end_word = 0;
+			memset(word, 0, MAXLINE);
+		}
 		//First line is a special case, check for built-in commands
 		//Check for a comment
 		if ((command[i] == '%')) {
@@ -82,9 +91,12 @@ void scanner(char command[], Element* each_element) {
 
 				each_element[current].type = "stringliteral";
 	            		strcpy(each_element[current].token, str);
-
     	        		++current;
 			}
+			end_word = 1;
+			each_element[current].type = "word";
+			strcpy(each_element[current].token, word);
+			++current;
 		} else if (command[i] == '"') { 
 			++i;
 			char str[MAXLINE];
@@ -98,11 +110,33 @@ void scanner(char command[], Element* each_element) {
 
 			each_element[current].type = "string";
 			strcpy(each_element[current].token, str);
-
+			++current;
+		} else if (command[i] == '\n') {
+			each_element[current].type = "word";
+			strcpy(each_element[current].token, word);
+			++current;
+			each_element[current].type = "end-of-line";
+			strcpy(each_element[current].token, "EOL");
 			++current;
 		} else {
-
+			word[index_word] = command[i];
+			word[index_word+1] = '\0';
+			++index_word;
 		}
+	}
+	
+	if (strcmp(each_element[0].token, "prompt") == 0) {
+		each_element[0].type = "prompt";
+	} else if (strcmp(each_element[0].token, "setenv") == 0) {
+		each_element[0].type = "setenv";
+	} else if (strcmp(each_element[0].token, "setdir") == 0) {
+		each_element[0].type = "setdir";
+	} else if (strcmp(each_element[0].token, "listenv") == 0) {
+		each_element[0].type = "listenv";
+	} else if (strcmp(each_element[0].token, "unsetenv") == 0) {
+		each_element[0].type = "unsetenv";
+	} else if (strcmp(each_element[0].token, "bye") == 0) {
+		each_element[0].type = "bye";
 	}
 }
 
