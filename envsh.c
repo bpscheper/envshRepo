@@ -7,12 +7,12 @@
 # define MAXLINE 256
 
 typedef struct {
-	char* token;
+	char token[MAXLINE];
 	char* type;
 } Element;
 
 //Globals
-char* prompt = "envsh > ";
+char prompt[MAXLINE] = "envsh > ";
 
 //Prototypes
 void scanner(char* command, Element* each_element);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void scanner(char* command, Element* each_element) {
+void scanner(char command[], Element* each_element) {
 
 	int current = 0; // current place in element array 
 	int i; // index used for command line 
@@ -50,27 +50,26 @@ void scanner(char* command, Element* each_element) {
 					++index;
 				}
 				each_element[current].type = "metachar";
-				each_element[current].token = comment;
+				strncpy(each_element[current].token, comment, sizeof(comment)/sizeof(*comment));
 				return;
 			}
 			else {
-				// printf("checking for build ins\n");
+				//printf("checking for build ins\n");
 				//Check for built in commands
 				char firstcmd[6];
 				strncpy(firstcmd, command, 6);
 				if (strcmp(firstcmd, "prompt") == 0){
-					printf("scan prompt.");
 					each_element[current].type = "prompt";
-					each_element[current].token = "prompt";
+					strcpy(each_element[current].token, "prompt");	
 					++current;
 				} else if (strcmp(firstcmd, "setdir") == 0) {
 					each_element[current].type = "setdir";
-					each_element[current].token = "setdir";
+					strcpy(each_element[current].token, "setdir");	
 					++current;
 					continue;
 				} else if (strcmp(firstcmd, "setenv") == 0) {
 					each_element[current].type = "setenv";
-					each_element[current].token = "setenv";
+					strcpy(each_element[current].token, "setenv");	
 					++current;
 					continue;
 				}
@@ -79,7 +78,7 @@ void scanner(char* command, Element* each_element) {
 				strncpy(check_unset, command, 8);
 				if (strcmp(check_unset, "unsetenv") == 0) {
 					each_element[current].type = "unsetenv";
-					each_element[current].token = "unsetenv";
+					strcpy(each_element[current].token, "unsetenv");	
 					++current;
 					continue;
 				}
@@ -87,37 +86,39 @@ void scanner(char* command, Element* each_element) {
 				char list_env[7];
 				strncpy(list_env, command, 7);
 				if (strcmp(list_env, "listenv") == 0) {
-                                        each_element[current].type = "listenv";
-                                        each_element[current].token = "listenv";
-                                        ++current;
+                    each_element[current].type = "listenv";
+					strcpy(each_element[current].token, "listenv");	
+                    ++current;
 					continue;
 				}
 
 				char bye[3];
-                                strncpy(bye, command, 3);
-                                if (strcmp(bye, "bye") == 0) {
-                                        each_element[current].type = "bye";
-                                        each_element[current].token = "bye";
-                                        ++current;
-                                        continue;
-                                }
+                strncpy(bye, command, 3);
+                if (strcmp(bye, "bye") == 0) {
+                	each_element[current].type = "bye";
+					strcpy(each_element[current].token, "bye");	
+                    ++current;
+                    continue;
+                }
 			}
 		} else if (command[i] == '<') {
 			++current;
            		each_element[current].type = "metachar";
-           		each_element[current].token = "<";
+				strcpy(each_element[current].token, "<");
 		} else if (command[i] == '>') {
 			++current;
 			each_element[current].type = "metachar";
-			each_element[current].token = ">";
+			strcpy(each_element[current].token, ">");	
 		} else if (command[i] == ' ') {
 
 		} else if (command[i] == '"') { 
+			++i;
 			while (command[i] != '"') {
-				each_element[current].token += command[i];				
+				
 				++i;
 			}
 			each_element[current].type = "string";
+			++current;
 		} else {
 
 		}
@@ -125,7 +126,6 @@ void scanner(char* command, Element* each_element) {
 }
 
 void parser() {
-
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
 	
@@ -140,12 +140,11 @@ void parser() {
 
 	//Parse each of the elements
 	int i = 0;
-	for(i=0; i < sizeof(each_element)/sizeof(each_element[0]); i++){
+	for(i=0; i < MAXLINE; i++){
 		//Built-In Commands
 		//Set the shell prompt to next token
 		if(each_element[i].type == "prompt"){
-			printf("parse prompt");
-			strcpy(prompt, each_element[i+1].token);
+			printf("prompt");
 		}
 		//Set the environment variable
 		else if(each_element[i].type == "setenv"){
@@ -160,8 +159,11 @@ void parser() {
 		else if(each_element[i].type == "setdir"){
 		}
 		//Exit
-		if(each_element[i].type == "bye"){
+		else if(each_element[i].type == "bye"){
 			exit(0);
+		}
+		//Non built in function, fork here
+		else{
 		}
 	}
 }
