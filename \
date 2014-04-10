@@ -80,14 +80,14 @@ void scanner(char command[], Element* each_element) {
 					continue;
 				}
 
-				char check_unset[8];
-				strncpy(check_unset, command, 8);
-				if (strcmp(check_unset, "unsetenv") == 0) {
-					each_element[current].type = "unsetenv";
-					strcpy(each_element[current].token, "unsetenv");	
-					++current;
-					continue;
-				}
+				char unset_env[8];
+                strncpy(unset_env, command, 8);
+                if (strcmp(unset_env, "unsetenv") == 0) {
+                    each_element[current].type = "unsetenv";
+                    strcpy(each_element[current].token, "unsetenv");
+                    ++current;
+                    continue;
+                }
 
 				char list_env[7];
 				strncpy(list_env, command, 7);
@@ -194,6 +194,14 @@ void parser() {
 		}
 		//Unset the environment variable
 		else if(each_element[i].type == "unsetenv"){
+			int i =0;
+            while (i < MAXLINE){
+                if (strcmp(envVars[i].name, each_element[i+1].token) == 0){
+                    envVars[i].active = 0;
+                    break;
+                }
+                i++;
+            }
 		}
 		//Print the current environment variables and values
 		else if(each_element[i].type == "listenv"){
@@ -214,12 +222,6 @@ void parser() {
 		}
 		//Non built in function, fork here
 		else{
-			int pid = fork();
-			if (pid == 0){ //Child
-				execl("/bin/date","",NULL);
-			}
-			wait(pid);
-			break;
 		}
 	}
 }
