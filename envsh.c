@@ -157,55 +157,52 @@ void parser() {
 	//Scan all of the elements
 	scanner(command, each_element);
 
-	//Parse each of the elements
-	int i = 0;
-	for(i=0; i < MAXLINE; i++){
-		//Built-In Commands
-		//Set the shell prompt to next token
-		if(each_element[i].type == "prompt"){
-			strcpy(prompt, each_element[i+1].token);
-		}
-		//Set the environment variable
-		else if(each_element[i].type == "setenv"){
-			int i = 0;
-			while (i < MAXLINE){
-				if (envVars[i].active != 1){
-					strcpy(envVars[i].name, each_element[i+1].token);
-					strcpy(envVars[i].value, each_element[i+2].token);
-					envVars[i].active = 1;
-					break;
-				}
-				i++;
+	//Built-In Commands
+	//Set the shell prompt to next token
+	if(each_element[0].type == "prompt"){
+		strcpy(prompt, each_element[1].token);
+	}
+	//Set the environment variable
+	else if(each_element[0].type == "setenv"){
+		int i = 0;
+		while (i < MAXLINE){
+			if (envVars[i].active != 1){
+				strcpy(envVars[i].name, each_element[i+1].token);
+				strcpy(envVars[i].value, each_element[i+2].token);
+				envVars[i].active = 1;
+				break;
 			}
+			i++;
 		}
-		//Unset the environment variable
-		else if(each_element[i].type == "unsetenv"){
-			int i = 0;
-			while(i < MAXLINE){
-				if (strcmp(envVars[i].name, each_element[i+1].token) == 0)
-					envVars[i].active = 0;
-				++i;
+	}
+	//Unset the environment variable
+	else if(each_element[0].type == "unsetenv"){
+		int i = 0;
+		while(i < MAXLINE){
+			if (strcmp(envVars[i].name, each_element[i+1].token) == 0)
+				envVars[i].active = 0;
+			++i;
+		}
+	}
+	//Print the current environment variables and values
+	else if(each_element[0].type == "listenv"){
+		int i = 0;
+		while(i < MAXLINE){
+			if (envVars[i].active == 1){
+				printf("%s=\"%s\"\n", envVars[i].name, envVars[i].value);
 			}
+			++i;
 		}
-		//Print the current environment variables and values
-		else if(each_element[i].type == "listenv"){
-			int i = 0;
-			while(i < MAXLINE){
-				if (envVars[i].active == 1){
-					printf("%s=\"%s\"\n", envVars[i].name, envVars[i].value);
-				}
-				++i;
-			}
-		}
-		//Set current directory
-		else if(each_element[i].type == "setdir"){
-		}
-		//Exit
-		else if(each_element[i].type == "bye"){
-			exit(0);
-		}
+	}
+	//Set current directory
+	else if(each_element[0].type == "setdir"){
+	}
+	//Exit
+	else if(each_element[0].type == "bye"){
+		exit(0);
+	}
 		//Non built in function, fork here
-		else{
+	else{
 			int pid = fork();
 			if (pid == 0){ //Child
 				//execl("/bin/date","",NULL);
