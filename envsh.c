@@ -181,7 +181,6 @@ void parser() {
 		else if(each_element[i].type == "unsetenv"){
 			int i = 0;
 			while(i < MAXLINE){
-				printf("%d name:%s token:%s\n", i, envVars[i].name, each_element[i].token);
 				if (strcmp(envVars[i].name, each_element[i+1].token) == 0)
 					envVars[i].active = 0;
 				++i;
