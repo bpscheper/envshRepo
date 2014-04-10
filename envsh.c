@@ -224,7 +224,7 @@ void parser() {
 			int i;
 			for (i = 0; i < MAXLINE; ++i) {
 				if (strcmp(each_element[i].token, ">") == 0) {
-					if (strcmp(each_element[i+1].token, "EOL" != 0)) {
+					if (strcmp(each_element[i+1].token, "EOL") != 0) {
 						FILE *fd = open(each_element[i+1].token, 'w');
 						dup2(fd, 1);
 						close(fd);
