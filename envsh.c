@@ -54,7 +54,6 @@ void scanner(char command[], Element* each_element) {
 				return;
 			}
 			else {
-				//printf("checking for build ins\n");
 				//Check for built in commands
 				char firstcmd[6];
 				strncpy(firstcmd, command, 6);
@@ -103,21 +102,30 @@ void scanner(char command[], Element* each_element) {
 			}
 		} else if (command[i] == '<') {
 			++current;
-           		each_element[current].type = "metachar";
-				strcpy(each_element[current].token, "<");
+           	each_element[current].type = "metachar";
+			strcpy(each_element[current].token, "<");
+			continue;
 		} else if (command[i] == '>') {
 			++current;
 			each_element[current].type = "metachar";
 			strcpy(each_element[current].token, ">");	
+			continue;
 		} else if (command[i] == ' ') {
 
 		} else if (command[i] == '"') { 
 			++i;
+			char str[MAXLINE];
+			int len = 0;
 			while (command[i] != '"') {
-				
+				str[len] = command[i];
+				str[len + 1] = '\0';
+				++len;
 				++i;
 			}
+
 			each_element[current].type = "string";
+			strcpy(each_element[current].token, str);
+
 			++current;
 		} else {
 
@@ -129,7 +137,7 @@ void parser() {
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
 	
-	int cur_element = 0; // current index of token from command line
+	//int cur_element = 0; // current index of token from command line
 
 	fgets(command, MAXLINE, stdin);
 	if (feof(stdin))
@@ -144,7 +152,7 @@ void parser() {
 		//Built-In Commands
 		//Set the shell prompt to next token
 		if(each_element[i].type == "prompt"){
-			printf("prompt");
+			strcpy(prompt, each_element[i+1].token);
 		}
 		//Set the environment variable
 		else if(each_element[i].type == "setenv"){
