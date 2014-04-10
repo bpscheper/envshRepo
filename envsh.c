@@ -3,6 +3,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 
 # define MAXLINE 256
 
@@ -88,7 +89,7 @@ void scanner(char command[], Element* each_element) {
 			each_element[current].type = "metachar";
 			strcpy(each_element[current].token, ">");
 			++current;
-		} else if (command[i] == ' ') {
+		} else if ((command[i] == ' ') && (mid_word == 1)){
 			if (strcmp(each_element[current-1].type, "setenv") == 0){
 				++i;
 				char str[MAXLINE];
@@ -108,6 +109,7 @@ void scanner(char command[], Element* each_element) {
 			each_element[current].type = "word";
 			strcpy(each_element[current].token, word);
 			++current;
+			mid_word = 0;
 		} else if (command[i] == '"') { 
 			++i;
 			char str[MAXLINE];
@@ -168,6 +170,12 @@ void parser() {
 	//Scan all of the elements
 	scanner(command, each_element);
 
+	int j = 0;
+	while (each_element[j].type != "end-of-line") {
+//		printf("%s\n", each_element[j].token);
+		j++;
+	}
+
 	//Built-In Commands
 	//Set the shell prompt to next token
 	if(each_element[0].type == "prompt"){
@@ -222,17 +230,26 @@ void parser() {
 			return;
 		} else {
 			int i;
+			int if_output = 0;
+			char output[MAXLINE];
 			for (i = 0; i < MAXLINE; ++i) {
 				if (strcmp(each_element[i].token, ">") == 0) {
-					if (strcmp(each_element[i+1].token, "EOL" != 0)) {
-						FILE *fd = open(each_element[i+1].token, 'w');
-						dup2(fd, 1);
-						close(fd);
-					}
+					++i;
+					if_output = 1;
+					strcpy(output, each_element[i].token);
 				}
 			}
-			int pid = fork();
+			pid_t pid = fork();
 			if (pid == 0){ //Child
+				if (if_output == 1) {
+					printf("%s\n", output);
+					int fd = open(output, O_CREAT|O_WRONLY);
+					if (fd == -1) 
+						perror("Error: ");
+					printf("%d\n", fd);
+					int fd_dup = dup2(fd, 1);
+					close(fd);
+				}
 				execl(each_element[0].token,"",NULL);
 			}
 			wait(pid);
