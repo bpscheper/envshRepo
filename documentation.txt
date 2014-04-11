@@ -11,5 +11,6 @@ Running make will build the project. The project can then be executed by using
 ./envsh
 
 Limitations:
+Environment variables are not fully finished. The shell will list out the environment variables but cannot set/unset variables. The environment variables do get sent to the execve call though
 
 Special features:
