@@ -215,6 +215,10 @@ void parser() {
 	}
 	//Set current directory
 	else if(each_element[0].type == "setdir"){
+		int i = chdir(each_element[1].token);
+		if (i != 0){
+			printf("the directory could not be changed.\n");
+		}
 	}
 	//Exit
 	else if(each_element[0].type == "bye"){
