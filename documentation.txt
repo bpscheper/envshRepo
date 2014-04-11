@@ -1,5 +1,14 @@
+Project 3
+-----------------------
+Brian Scheper
+Andrew Johnston
 
-The project is a shell that will execute commands. The algorithm reads the command input, then scans it character by character, piecing tokens together. Then, the parser determines what the tokens mean. It then forks a process if the command is not a built-in (changing the prompt, exiting the shell, changing directory, manipulating environment variables), and the child process makes an execl call with the command
+Description:
+The project is a shell that will execute commands. The algorithm reads the command input, then scans it character by character, piecing tokens together. Then, the parser determines what the tokens mean. It then forks a process if the command is not a built-in (changing the prompt, exiting the shell, changing directory, manipulating environment variables), and the child process makes an execve call with the command
+
+Build Instructions:
+Running make will build the project. The project can then be executed by using
+./envsh
 
 Limitations:
 
