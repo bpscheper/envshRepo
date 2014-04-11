@@ -235,26 +235,49 @@ void parser() {
 		} else {
 			int i;
 			int if_output = 0;
+			int if_input = 0;
+			char input[MAXLINE];
 			char output[MAXLINE];
+			int num_args = -1;
+			int end_args = 0; // end of arguments for command
 			for (i = 0; i < MAXLINE; ++i) {
 				if (strcmp(each_element[i].token, ">") == 0) {
 					++i;
 					if_output = 1;
 					strcpy(output, each_element[i].token);
+					end_args = 1;
+				} else if (strcmp(each_element[i].token, "<") == 0) {
+					++i;
+					if_input = 1;
+					strcpy(input, each_element[i].token);
+					end_args = 1;
+				} else if (strcmp(each_element[i].token, "EOL") == 0) {
+					end_args = 1;
+				} else {
+					if (end_args == 0) {
+						num_args++;
+					}
 				}
 			}
 			pid_t pid = fork();
 			if (pid == 0){ //Child
 				if (if_output == 1) {
-					printf("%s\n", output);
-					int fd = open(output, O_CREAT|O_WRONLY);
-					if (fd == -1) 
-						perror("Error: ");
+					int permission = 0777;
+					int fd = open(output, O_CREAT|O_WRONLY, permission);
 					printf("%d\n", fd);
+					if (fd == -1) 
+						perror("Output Error: ");
 					int fd_dup = dup2(fd, 1);
 					close(fd);
 				}
-				execl(each_element[0].token,"",NULL);
+				if (if_input == 1) {
+					int fd = open(input, O_RDONLY);
+					if (fd == -1)
+						perror("Input Error: ");
+					int fd_dup = dup2(fd, 0);
+					close(fd);
+				}
+				execve(each_element[0].token, args, environ, NULL);
 			}
 			wait(pid);
 		}
