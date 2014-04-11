@@ -25,8 +25,12 @@ Variable envVars[MAXLINE];
 //Prototypes
 void scanner(char* command, Element* each_element);
 void parser(char *envp[]);
+int count_environ(char *envp[]);
 
 int main(int argc, char *argv[], char *envp[]) {
+
+	int count = count_environ(envp);
+	printf("%d\n", count);
 
 	//Set up quiet mode
 	int quiet = 0;
@@ -183,7 +187,7 @@ void parser(char *envp[]) {
 	}
 	//Set the environment variable
 	else if(each_element[0].type == "setenv"){
-		int i = 0;
+		/* int i = 0;
 		while (i < MAXLINE){
 			if (envVars[i].active != 1){
 				strcpy(envVars[i].name, each_element[i+1].token);
@@ -192,7 +196,14 @@ void parser(char *envp[]) {
 				break;
 			}
 			i++;
-		}
+		} */
+		int count = count_environ(envp);
+		char new_var[MAXLINE];
+		strcpy(new_var, each_element[1].token);
+		strcat(new_var, "=");
+		strcat(new_var, each_element[2].token);
+		envp[count+1] = new_var;
+		envp[count+2] = NULL;
 	}
 	//Unset the environment variable
 	else if(each_element[0].type == "unsetenv"){
@@ -205,11 +216,16 @@ void parser(char *envp[]) {
 	}
 	//Print the current environment variables and values
 	else if(each_element[0].type == "listenv"){
-		int i = 0;
+	/*	int i = 0;
 		while(i < MAXLINE){
 			if (envVars[i].active == 1){
 				printf("%s=\"%s\"\n", envVars[i].name, envVars[i].value);
 			}
+			++i;
+		}*/
+		int i = 0;
+		while (envp[i] != NULL) {
+			printf("%s\n", envp[i]);
 			++i;
 		}
 	}
@@ -286,4 +302,12 @@ void parser(char *envp[]) {
 		}
 	}
 	
+}
+
+int count_environ(char *envp[]) {
+	int i = 0;
+	while (envp[i] != NULL) {
+		++i;
+	}
+	return i;
 }
