@@ -221,7 +221,7 @@ void parser() {
 		}
 	}
 	//Exit
-	else if(each_element[0].type == "bye"){
+	else if ((each_element[0].type == "bye") && (each_element[1].type == "end-of-line")) {
 		exit(0);
 	}
 	else if (command[0] == '%') {
@@ -238,7 +238,8 @@ void parser() {
 			int if_input = 0;
 			char input[MAXLINE];
 			char output[MAXLINE];
-			int num_args = -1;
+			char* args[100];
+			int num_args = 0;
 			int end_args = 0; // end of arguments for command
 			for (i = 0; i < MAXLINE; ++i) {
 				if (strcmp(each_element[i].token, ">") == 0) {
@@ -255,7 +256,9 @@ void parser() {
 					end_args = 1;
 				} else {
 					if (end_args == 0) {
+						args[num_args] = each_element[i].token;
 						num_args++;
+						args[num_args] = NULL;
 					}
 				}
 			}
@@ -277,7 +280,7 @@ void parser() {
 					int fd_dup = dup2(fd, 0);
 					close(fd);
 				}
-				execve(each_element[0].token, args, environ, NULL);
+				execve(each_element[0].token, args, args, NULL);
 			}
 			wait(pid);
 		}
