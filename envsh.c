@@ -24,13 +24,13 @@ Variable envVars[MAXLINE];
 
 //Prototypes
 void scanner(char* command, Element* each_element);
-void parser(char *envp[]);
-int count_environ(char *envp[]);
+void parser(char *environ[]);
+void copy_environ(char* environ[], char *envp[]);
 
 int main(int argc, char *argv[], char *envp[]) {
 
-	int count = count_environ(envp);
-	printf("%d\n", count);
+	char* environ[MAXLINE] = { NULL };
+	copy_environ(environ, envp);
 
 	//Set up quiet mode
 	int quiet = 0;
@@ -41,7 +41,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		if (quiet == 0) {
 			printf("%s", prompt);
 		}
-		parser(envp);
+		parser(environ);
 	}
 	return 0;
 }
@@ -158,7 +158,7 @@ void scanner(char command[], Element* each_element) {
 	}
 }
 
-void parser(char *envp[]) {
+void parser(char *environ[]) {
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
 	
@@ -173,12 +173,6 @@ void parser(char *envp[]) {
 
 	//Scan all of the elements
 	scanner(command, each_element);
-
-	int j = 0;
-	while (each_element[j].type != "end-of-line") {
-//		printf("%s\n", each_element[j].token);
-		j++;
-	}
 
 	//Built-In Commands
 	//Set the shell prompt to next token
@@ -197,13 +191,17 @@ void parser(char *envp[]) {
 			}
 			i++;
 		} */
-		int count = count_environ(envp);
 		char new_var[MAXLINE];
 		strcpy(new_var, each_element[1].token);
 		strcat(new_var, "=");
 		strcat(new_var, each_element[2].token);
-		envp[count+1] = new_var;
-		envp[count+2] = NULL;
+		printf("%s\n", new_var);
+		int i = 0;
+		while (environ[i] != NULL) {
+			++i;
+		}
+		strcpy(environ[i], new_var);
+		environ[i+1] = NULL;
 	}
 	//Unset the environment variable
 	else if(each_element[0].type == "unsetenv"){
@@ -224,8 +222,8 @@ void parser(char *envp[]) {
 			++i;
 		}*/
 		int i = 0;
-		while (envp[i] != NULL) {
-			printf("%s\n", envp[i]);
+		while (environ[i] != NULL) {
+			printf("%s\n", environ[i]);
 			++i;
 		}
 	}
@@ -296,7 +294,7 @@ void parser(char *envp[]) {
 					int fd_dup = dup2(fd, 0);
 					close(fd);
 				}
-				execve(each_element[0].token, args, envp, NULL);
+				execve(each_element[0].token, args, environ);
 			}
 			wait(pid);
 		}
@@ -304,10 +302,19 @@ void parser(char *envp[]) {
 	
 }
 
-int count_environ(char *envp[]) {
+void copy_environ(char* environ[], char *envp[]) {
 	int i = 0;
 	while (envp[i] != NULL) {
-		++i;
+		environ[i] = envp[i];
+		i++;
+	}
+	environ[i+1] = NULL;
+}
+
+int count_environ(char* environ[]) {
+	int i = 0;
+	while (environ[i] != NULL) {
+		i++;
 	}
 	return i;
 }
