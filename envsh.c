@@ -24,10 +24,10 @@ Variable envVars[MAXLINE];
 
 //Prototypes
 void scanner(char* command, Element* each_element);
-void parser();
+void parser(char *envp[]);
 
-int main(int argc, char *argv[]) {
-	
+int main(int argc, char *argv[], char *envp[]) {
+
 	//Set up quiet mode
 	int quiet = 0;
 	if (argc >= 2 && strcmp(argv[1],"quiet") == 0){
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 		if (quiet == 0) {
 			printf("%s", prompt);
 		}
-		parser();
+		parser(envp);
 	}
 	return 0;
 }
@@ -154,7 +154,7 @@ void scanner(char command[], Element* each_element) {
 	}
 }
 
-void parser() {
+void parser(char *envp[]) {
 	char command[MAXLINE]; // command line input
 	Element each_element[MAXLINE]; // array of tokens/type of each 
 	
@@ -280,7 +280,7 @@ void parser() {
 					int fd_dup = dup2(fd, 0);
 					close(fd);
 				}
-				execve(each_element[0].token, args, args, NULL);
+				execve(each_element[0].token, args, envp, NULL);
 			}
 			wait(pid);
 		}
